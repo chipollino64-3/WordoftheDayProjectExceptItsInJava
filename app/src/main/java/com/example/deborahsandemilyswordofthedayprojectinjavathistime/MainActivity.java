@@ -34,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
         //set textview to the strings for word, pronunciation
         //put each definition in a chunk
         Button newWord = findViewById(R.id.newWord);
-        newWord.setOnClickListener(unused -> randomWord());
+        newWord.setOnClickListener(unused -> merriamWebsterWord());
 
     }
 
     /**
-     * Makes a web.api request for a random word
+     * Makes a web.api request for a random word.
      * @return that word as a string
      */
     private String randomWord() {
@@ -48,9 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Passes the word returned in randomWord() to the endpoint of a web.api request to Merriam-Webster.
-     * @param s randomWord()
      */
-    private void merriamWebsterWord(String s) {
+    private void merriamWebsterWord() {
         //The response object will immediately call this parser.
     }
 
