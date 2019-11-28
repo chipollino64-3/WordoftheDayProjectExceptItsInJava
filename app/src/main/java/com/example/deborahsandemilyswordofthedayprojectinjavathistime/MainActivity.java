@@ -40,10 +40,18 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Makes a web.api request for a random word.
+     * The web.api returns the response as a text, so cast that to a string
+     *
      * @return that word as a string
      */
     private String randomWord() {
-        return "Oy vey mamma mia santa maria";
+        String
+        WebApi.startRequest(this, WebApi.API_BASE, response -> {
+            String randomWord = response.getText();
+            return randomWord;
+        }, error -> {
+            Toast.makeText(this, "Oh no!", Toast.LENGTH_LONG).show();
+        })
     }
 
     /**
@@ -59,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
      * Re-sets the timer back to 24 hours.
      * @param o the response merriamWebsterWord's web.api request will return; a word object
      */
-    private void parser(JSONObject o) {
+    private void parser(final JsonObject o) {
         TextView word = findViewById(R.id.Word);
         TextView pronunciation = findViewById(R.id.Pronunciation);
         LinearLayout definitions = findViewById(R.id.Definitions);
