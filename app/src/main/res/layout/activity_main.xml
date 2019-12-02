@@ -11,27 +11,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
-        android:layout_marginLeft="1dp"
         android:text="Don't like this word? Get a new one!"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/Definitions"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.327" />
+        app:layout_constraintVertical_bias="0.13" />
 
     <TextView
         android:id="@+id/Word"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="175dp"
         android:textSize="30sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/Definitions"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/Definitions"
-        app:layout_constraintVertical_bias="0.272" />
+        app:layout_constraintTop_toBottomOf="@+id/newWord"
+        app:layout_constraintVertical_bias="0.100000024" />
 
     <TextView
         android:id="@+id/Pronunciation"
@@ -42,16 +40,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.63" />
+        app:layout_constraintTop_toBottomOf="@+id/Word"
+        app:layout_constraintVertical_bias="0.07999998" />
 
     <LinearLayout
         android:id="@+id/Definitions"
         android:layout_width="370dp"
         android:layout_height="3dp"
         android:layout_marginTop="384dp"
+        android:layout_marginBottom="344dp"
         android:orientation="vertical"
-        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,6 +10,13 @@ import java.util.TimerTask;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     /** The random word that we will get with a GET request. */
     private static String randomWord;
 
+    /** Private API key for WordsAPI. */
+    private static String API_KEY = "6bab6e59d6msh6ce8a6594046873p1352fbjsn5f6f098fbffd";
+
     /**
      * Runs when the app is first opened.
      * @param savedInstanceState the... saved... instance... state?
@@ -39,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
         //parse the object into: word, word class, pronunciation, definitions
         //set textview to the strings for word, pronunciation
         //put each definition in a chunk
+        // ...
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://www.google.com";
+
+        // Request a string response from the provided URL.
         Button newWord = findViewById(R.id.newWord);
         TextView word = findViewById(R.id.Word);
         TextView pronunciation = findViewById(R.id.Pronunciation);
@@ -48,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         word.setText("Welcome!");
         pronunciation.setVisibility(View.INVISIBLE);
         //definitions.setVisibility(View.GONE);
-        newWord.setOnClickListener(unused -> merriamWebsterWord("incredible"));
+        newWord.setOnClickListener(unused -> word.setText("Word"));
 //            word.setText("Incredible");
 //            pronunciation.setVisibility(View.VISIBLE);
 //            pronunciation.setText("ink-RED-ib-ul");
@@ -63,11 +79,11 @@ public class MainActivity extends AppCompatActivity {
      * @return that word as a string
      */
     private void randomWord() {
-        /*WebApi.startRequest(this, , response -> {
-            randomWord = response.getText();
-        }, error -> {
-            Toast.makeText(this, "Oh no!", Toast.LENGTH_LONG).show();
-        });*/
+
+
+// Access the RequestQueue through your singleton class.
+        //MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+
     }
 
     /**
@@ -75,21 +91,7 @@ public class MainActivity extends AppCompatActivity {
      * @param s idk yet
      */
     private void merriamWebsterWord(String s) {
-       String url1 =  WebApi.API_BASE + s + WebApi.API_KEY_PARAM + "3ebf6109-78fe-4fde-95c5-d5a52cd5fcfa";
-       WebApi.startRequest(this, url1, response -> {
-           Toast.makeText(this, response.toString(), Toast.LENGTH_LONG).show();
-           //System.out.println(response.toString());
-            /*TextView word = findViewById(R.id.Word);
-            word.setVisibility(View.VISIBLE);
-            word.setText("response.toString()");*/
 
-        }, error -> {
-            Toast.makeText(this, "Oh no!", Toast.LENGTH_LONG).show();
-        });
-        TextView word = findViewById(R.id.Word);
-        word.setVisibility(View.VISIBLE);
-        word.setText("response.toString()");
-        //The response object will immediately call this parser.
     }
 
     /**
@@ -99,9 +101,32 @@ public class MainActivity extends AppCompatActivity {
      * @param o the response merriamWebsterWord's web.api request will return; a word object
      */
     private void parser(JsonObject o) {
-        TextView word = findViewById(R.id.Word);
         TextView pronunciation = findViewById(R.id.Pronunciation);
+        JsonArray pronunciations = o.get("prs").getAsJsonArray();
+        String pro = "Pronunciation: ";
+        for (JsonElement p : pronunciations) {
+            JsonObject pObject = p.getAsJsonObject();
+            pro = pro + pObject.get("mw").getAsString() + "; ";
+        }
+        pronunciation.setText(pro);
         LinearLayout definitions = findViewById(R.id.Definitions);
+        //View definitionsChunk = getLayoutInflater().inflate(R.layout.definitions_chunk, definitions, false);
+        //TextView def = definitionsChunk.findViewById(R.id.def);
+        JsonArray defs = o.get("def").getAsJsonArray();
+        for (JsonElement x : defs) {
+            JsonObject xAsObject = x.getAsJsonObject();
+            JsonArray xAsArray = xAsObject.get("sseq").getAsJsonArray();
+            for (JsonElement d : xAsArray) {
+                JsonObject dAsObject = d.getAsJsonObject();
+                JsonArray singleDef = dAsObject.get("dt").getAsJsonArray();
+                for (JsonElement e : singleDef) {
+                    JsonObject eAsObject = e.getAsJsonObject();
+                    String definition = eAsObject.getAsString();
+                    //def.setText(definition);
+                    //definitions.addView(definitionsChunk);
+                }
+            }
+        }
         //JsonArray wordDefinitions =
     }
 
