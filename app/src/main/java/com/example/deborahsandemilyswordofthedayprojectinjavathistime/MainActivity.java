@@ -9,6 +9,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -42,15 +44,15 @@ public class MainActivity extends AppCompatActivity {
         TextView pronunciation = findViewById(R.id.Pronunciation);
         LinearLayout definitions = findViewById(R.id.Definitions);
         newWord.setVisibility(View.VISIBLE);
-        word.setVisibility(View.INVISIBLE);
+        word.setVisibility(View.VISIBLE);
+        word.setText("Welcome!");
         pronunciation.setVisibility(View.INVISIBLE);
         //definitions.setVisibility(View.GONE);
-        newWord.setOnClickListener(unused -> {
-            word.setVisibility(View.VISIBLE);
-            word.setText("Incredible");
-            pronunciation.setVisibility(View.VISIBLE);
-            pronunciation.setText("ink-RED-ib-ul");
-        });
+        newWord.setOnClickListener(unused -> merriamWebsterWord("incredible"));
+//            word.setText("Incredible");
+//            pronunciation.setVisibility(View.VISIBLE);
+//            pronunciation.setText("ink-RED-ib-ul");
+        //});
 
     }
 
@@ -73,13 +75,20 @@ public class MainActivity extends AppCompatActivity {
      * @param s idk yet
      */
     private void merriamWebsterWord(String s) {
-        WebApi.startRequest(this, WebApi.API_BASE + randomWord + WebApi.API_KEY_PARAM
-                + "3ebf6109-78fe-4fde-95c5-d5a52cd5fcfa", response -> {
-            parser(response);
+       String url1 =  WebApi.API_BASE + s + WebApi.API_KEY_PARAM + "3ebf6109-78fe-4fde-95c5-d5a52cd5fcfa";
+       WebApi.startRequest(this, url1, response -> {
+           Toast.makeText(this, response.toString(), Toast.LENGTH_LONG).show();
+           //System.out.println(response.toString());
+            /*TextView word = findViewById(R.id.Word);
+            word.setVisibility(View.VISIBLE);
+            word.setText("response.toString()");*/
 
         }, error -> {
             Toast.makeText(this, "Oh no!", Toast.LENGTH_LONG).show();
         });
+        TextView word = findViewById(R.id.Word);
+        word.setVisibility(View.VISIBLE);
+        word.setText("response.toString()");
         //The response object will immediately call this parser.
     }
 
@@ -93,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         TextView word = findViewById(R.id.Word);
         TextView pronunciation = findViewById(R.id.Pronunciation);
         LinearLayout definitions = findViewById(R.id.Definitions);
+        //JsonArray wordDefinitions =
     }
 
 }
