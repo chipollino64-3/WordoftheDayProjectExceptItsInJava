@@ -32,6 +32,7 @@ dependencies {
     //implementation 'com.google.firebase:firebase-core:17.2.1'
     //implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'de.gerdi-project:GSON:6.0.6'
+    implementation 'com.google.code.gson:gson:2.8.6'
     //implementation 'cljsjs:firebase:5.0.4-1'
     //implementation 'com.neovisionaires:nv-websocket-client:2.9'
     testImplementation 'junit:junit:4.12'
