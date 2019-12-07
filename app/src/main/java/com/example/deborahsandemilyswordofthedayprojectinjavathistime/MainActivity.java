@@ -161,14 +161,19 @@ public class MainActivity extends AppCompatActivity {
             JsonObject defJson = def.getAsJsonObject();
             String definition = defJson.get("definition").getAsString();
             System.out.println(definition);
-            if (!defJson.has("partOfSpeech") || defJson.get("partOfSpeech") == null) {
+            if (!defJson.has("partOfSpeech")) {
                 makeRequest();
                 return;
             }
-            String wordClass = defJson.get("partOfSpeech").getAsString();
-            System.out.println(wordClass);
-            //on our to-do list: figure out how to italicize
-            wordClassView.setText(wordClass);
+            try {
+                String wordClass = defJson.get("partOfSpeech").getAsString();
+                System.out.println(wordClass);
+                //on our to-do list: figure out how to italicize
+                wordClassView.setText(wordClass);
+            } catch (UnsupportedOperationException e) {
+                makeRequest();
+                return;
+            }
             actualDef.setText(definition);
             definitions.addView(definitionsChunk);
             System.out.println(definitions.getChildCount());
