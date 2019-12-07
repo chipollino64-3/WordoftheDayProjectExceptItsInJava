@@ -10,7 +10,10 @@
         android:id="@+id/wordClass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
         android:text="Noun"
+        android:textAlignment="textStart"
         android:textStyle="bold|italic"
         android:visibility="visible" />
 
@@ -18,7 +21,10 @@
         android:id="@+id/actualDefinition"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
         android:text="Def"
+        android:textAlignment="textStart"
         android:visibility="visible" />
 
 </LinearLayout>
