@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -28,7 +29,7 @@ import com.vividsolutions.jts.util.Stopwatch;
 public class MainActivity extends AppCompatActivity {
 
     /** How long the word will be up until the whole thing run's again. Make static? */
-    private Stopwatch stopwatch = new Stopwatch();
+    private Timer timer = new Timer();
 
     /** Map with required headers. */
     private static Map<String, String> headers = new HashMap<>();
@@ -57,24 +58,38 @@ public class MainActivity extends AppCompatActivity {
         headers.put("Accept", "application/json");
         // ...
         // Instantiate the RequestQueue.
-
+        /*TextView otherWord = findViewById(R.id.Word);
+        otherWord.setVisibility(View.VISIBLE);
+        otherWord.setText("Welcome!");*/
+        RequestQueue queue = Volley.newRequestQueue(this);
+        GsonRequester<JsonObject> random = new GsonRequester<>("https://wordsapiv1.p.mashape.com/words/welcome",
+                JsonObject.class, headers, response -> {
+            setInitialTimer();
+            parser(response);
+        }, error -> {
+            TextView word = findViewById(R.id.Word);
+            word.setText("Whoops! Something went wrong.");
+            error.getMessage();
+            error.printStackTrace();
+        });
+        queue.add(random);
 
 
         // Request a string response from the provided URL.
         Button newWord = findViewById(R.id.newWord);
-        TextView otherWord = findViewById(R.id.Word);
-        otherWord.setVisibility(View.VISIBLE);
-        otherWord.setText("Welcome!");
         newWord.setOnClickListener(unused -> makeRequest());
     }
 
+    /**
+     * Makes a GET request to the WordsAPI.
+     * In the event of a response, calls parser on said response.
+     * In the event of an error, notifies user.
+     */
     private void makeRequest() {
         RequestQueue queue = Volley.newRequestQueue(this);
         GsonRequester<JsonObject> random = new GsonRequester<>(URL,
                 JsonObject.class, headers, response -> {
-            //stopwatch.start();
-            //timer = new Timer();
-            //timer.schedule(new ChangeWordTask(), seconds*86400);
+            //timer.cancel();
             parser(response);
         }, error -> {
             TextView word = findViewById(R.id.Word);
@@ -114,20 +129,21 @@ public class MainActivity extends AppCompatActivity {
         if (!(o.get("pronunciation") instanceof JsonObject)) {
             String stringPronunciation = o.get("pronunciation").getAsString();
             pronunciation.setText("/" + stringPronunciation + "/");
-        }
-
-        JsonObject findPronunciation = o.get("pronunciation").getAsJsonObject();
-        if (findPronunciation.has("all")) {
-            String setPronunciation = findPronunciation.get("all").getAsString();
-            pronunciation.setText("/" + setPronunciation + "/");
         } else {
-            String nounPronunciation = "Noun: /" + findPronunciation.get("noun").getAsString() + "/";
-            pronunciation.setText("Noun: /" + nounPronunciation + "/");
-            if (findPronunciation.has("noun")) {
-                String verbPronunciation = "Verb: /" + findPronunciation.get("verb").getAsString() + "/";
-                pronunciation.setText(nounPronunciation + "; " + verbPronunciation);
+            JsonObject findPronunciation = o.get("pronunciation").getAsJsonObject();
+            if (findPronunciation.has("all")) {
+                String setPronunciation = findPronunciation.get("all").getAsString();
+                pronunciation.setText("/" + setPronunciation + "/");
+            } else {
+                String nounPronunciation = "Noun: /" + findPronunciation.get("noun").getAsString() + "/";
+                pronunciation.setText("Noun: /" + nounPronunciation + "/");
+                if (findPronunciation.has("noun")) {
+                    String verbPronunciation = "Verb: /" + findPronunciation.get("verb").getAsString() + "/";
+                    pronunciation.setText(nounPronunciation + "; " + verbPronunciation);
+                }
             }
         }
+
         JsonArray getResults = o.get("results").getAsJsonArray();
         for (JsonElement def : getResults) {
             View definitionsChunk = getLayoutInflater().inflate(R.layout.definitions_chunk, definitions, false);
@@ -139,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             JsonObject defJson = def.getAsJsonObject();
             String definition = defJson.get("definition").getAsString();
             System.out.println(definition);
-            if (!defJson.has("partOfSpeech")) {
+            if (!defJson.has("partOfSpeech") || defJson.get("partOfSpeech") == null) {
                 makeRequest();
                 return;
             }
@@ -156,9 +172,25 @@ public class MainActivity extends AppCompatActivity {
         definitions.setVisibility(View.VISIBLE);
     }
 
-    /*class ChangeWordTask extends TimerTask {
-        public void run() {
-            makeRequest();
+    private void setInitialTimer() {
+        class InitialWordTask extends TimerTask {
+            InitialWordTask() { }
+            public void run() {
+                setTimer();
+            }
         }
-    }*/
+        TimerTask task = new InitialWordTask();
+        timer.schedule(task, 15000);
+    }
+
+    private void setTimer() {
+        class ChangeWordTask extends TimerTask {
+            ChangeWordTask() { }
+            public void run() {
+                makeRequest();
+            }
+        }
+        TimerTask task = new ChangeWordTask();
+        timer.schedule(task, new Date(), 15000);
+    }
 }
