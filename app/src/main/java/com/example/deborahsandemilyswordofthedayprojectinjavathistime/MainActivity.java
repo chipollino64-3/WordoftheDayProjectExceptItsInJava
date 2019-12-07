@@ -28,18 +28,22 @@ import com.vividsolutions.jts.util.Stopwatch;
  */
 public class MainActivity extends AppCompatActivity {
 
-    /** How long the word will be up until the whole thing run's again. Make static? */
-    private Timer timer = new Timer();
+    /** Timer to instantiate for the maximum length a word will be visible on the screen. */
+    private static Timer timer = new Timer();
 
-    /** Map with required headers. */
+    private static TimerTask timerTask;
+
+    /** Map with request headers. */
     private static Map<String, String> headers = new HashMap<>();
 
-    /** URL parameter. */
+    /** URL parameter for our random word with specified conditions.
+     * Conditions, for those interested:
+     * - a single random word
+     * - has at least a single definition (believe it or not, not all of them do)
+     * - at least one of those definitions is a noun
+     * - minimum 5 letters long
+     * */
     private static final String URL = "https://wordsapiv1.p.mashape.com/words/?random=true&hasDetails=definitions&partOfSpeech=noun&lettersMin=5";
-
-    /*/** Private API key for WordsAPI.
-    private static String API_KEY = "6bab6e59d6msh6ce8a6594046873p1352fbjsn5f6f098fbffd";*/
-
 
     /**
      * Runs when the app is first opened.
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         GsonRequester<JsonObject> random = new GsonRequester<>("https://wordsapiv1.p.mashape.com/words/welcome",
                 JsonObject.class, headers, response -> {
-            setInitialTimer();
+            timerTask = setInitialTimer();
             parser(response);
         }, error -> {
             TextView word = findViewById(R.id.Word);
@@ -77,7 +81,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Request a string response from the provided URL.
         Button newWord = findViewById(R.id.newWord);
-        newWord.setOnClickListener(unused -> makeRequest());
+        newWord.setOnClickListener(unused -> {
+            setInitialTimer(timerTask);
+            makeRequest();
+        });
     }
 
     /**
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
      * In the event of a response, calls parser on said response.
      * In the event of an error, notifies user.
      */
-    private void makeRequest() {
+    protected void makeRequest() {
         RequestQueue queue = Volley.newRequestQueue(this);
         GsonRequester<JsonObject> random = new GsonRequester<>(URL,
                 JsonObject.class, headers, response -> {
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             parser(response);
         }, error -> {
             TextView word = findViewById(R.id.Word);
-            word.setText("Whoops! Something went wrong.");
+            word.setText("Whoops! Our API sucks. Sorry. Please click the button again.");
             error.getMessage();
             error.printStackTrace();
         });
@@ -102,9 +109,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Parses the JSONObject it receives into word, word class, pronunciation, definitions.
-     * Sets the text-views to the string properties of the JSONObject.
-     * Re-sets the timer back to 24 hours.
-     * @param o the response merriamWebsterWord's web.api request will return; a word object
+     * Populates the UI with these properties.
+     * @param o the parsed response returned by WordsAPI
      */
     private void parser(JsonObject o) {
         LinearLayout definitions = findViewById(R.id.Definitions);
@@ -172,25 +178,53 @@ public class MainActivity extends AppCompatActivity {
         definitions.setVisibility(View.VISIBLE);
     }
 
-    private void setInitialTimer() {
-        class InitialWordTask extends TimerTask {
-            InitialWordTask() { }
-            public void run() {
-                setTimer();
-            }
-        }
-        TimerTask task = new InitialWordTask();
-        timer.schedule(task, 15000);
+    /**
+     * Called by MainActivity's onCreate method.
+     * Sets the timer the first time the app is created for 24 hours.
+     * Resets timer each time the newWord button is clicked.
+     */
+    protected TimerTask setInitialTimer() {
+        timerTask = new InitialWordTask();
+        timer.schedule(timerTask, 86400000);
+        return timerTask;
     }
 
-    private void setTimer() {
-        class ChangeWordTask extends TimerTask {
-            ChangeWordTask() { }
-            public void run() {
-                makeRequest();
-            }
+    protected TimerTask setInitialTimer(TimerTask t) {
+        t.cancel();
+        timerTask = new InitialWordTask(t);
+        timer.schedule(timerTask, 86400000);
+        return timerTask;
+    }
+
+    /**
+     * Called by setInitialTimer after the first 24 hour period completes without interruption.
+     * Schedules makeRequest to automatically recur every 24 hours.
+     */
+    protected void setTimer() {
+        timerTask = new ChangeWordTask();
+        timer.schedule(timerTask, new Date(), 86400000);
+    }
+
+    private abstract class WordTask extends TimerTask {
+        public abstract void run();
+    }
+
+    private class InitialWordTask extends WordTask {
+        private TimerTask timerTask;
+        InitialWordTask() { }
+        InitialWordTask(TimerTask t) {
+            timerTask = t;
+            timerTask.cancel();
         }
-        TimerTask task = new ChangeWordTask();
-        timer.schedule(task, new Date(), 15000);
+        public void run() {
+            setTimer();
+        }
+    }
+
+    private class ChangeWordTask extends WordTask {
+        ChangeWordTask() { }
+        public void run() {
+            makeRequest();
+        }
     }
 }
