@@ -205,10 +205,16 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(timerTask, new Date(), 86400000);
     }
 
+    /**
+     * Extends TimerTask. The run method should be implemented with the desired task.
+     */
     private abstract class WordTask extends TimerTask {
         public abstract void run();
     }
 
+    /**
+     * Extends WordTask. For use in setInitialTimer.
+     */
     private class InitialWordTask extends WordTask {
         private TimerTask timerTask;
         InitialWordTask() { }
@@ -221,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Extends Word Task. For use in setTimer.
+     */
     private class ChangeWordTask extends WordTask {
         ChangeWordTask() { }
         public void run() {
