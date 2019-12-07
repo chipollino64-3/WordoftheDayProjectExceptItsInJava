@@ -113,18 +113,18 @@ public class MainActivity extends AppCompatActivity {
      * @param o the parsed response returned by WordsAPI
      */
     private void parser(JsonObject o) {
-        LinearLayout definitions = findViewById(R.id.Definitions);
-        definitions.removeAllViews();
         TextView word = findViewById(R.id.Word);
+        TextView pronunciation = findViewById(R.id.Pronunciation);
+        LinearLayout definitions = findViewById(R.id.Definitions);
+        word.setVisibility(View.GONE);
+        pronunciation.setVisibility(View.GONE);
+        definitions.setVisibility(View.GONE);
+        definitions.removeAllViews();
         String setWord = o.get("word").getAsString();
         if (setWord.contains(" ")) {
             makeRequest();
             return;
         }
-        TextView pronunciation = findViewById(R.id.Pronunciation);
-        word.setVisibility(View.GONE);
-        pronunciation.setVisibility(View.GONE);
-        definitions.setVisibility(View.GONE);
         System.out.println(setWord);
         word.setText(setWord);
         if (!o.has("pronunciation")) {
